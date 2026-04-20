@@ -277,6 +277,29 @@ function updateFinder() {
   if (val <= 0) { results.style.display = "none"; return; }
   results.style.display = "grid";
 
+  const selIdx = document.getElementById("serviceTypeSelect").value;
+  const engagement = selIdx !== "" ? hiringData[parseInt(selIdx)] : null;
+  const isHR = cType === "service" && engagement && engagement.r === "employment";
+
+  // HR/employment path — no tendering, no SEAO, Director of HR as approver
+  if (isHR) {
+    results.innerHTML = `
+      <div class="card card-left" style="--accent:#2563eb;">
+        <div class="card-label">✍️ Approval Authority — HR</div>
+        <div class="card-value" style="color:#2563eb;">Director of HR</div>
+        <div class="card-desc">Employment engagements are authorized by the Director of Human Resources and processed through HR/Payroll.</div>
+        <div class="card-ref">HR Employment Contract Policy</div>
+      </div>
+      <div class="card card-left" style="--accent:#2563eb;">
+        <div class="card-label">🔀 Routing — HR / Payroll</div>
+        <div class="card-value" style="color:#2563eb;">Not a Procurement Contract</div>
+        <div class="card-desc"><strong>${engagement.t}</strong> is an employment engagement. Process through HR/Payroll. No tendering obligation and no SEAO reporting applies.</div>
+        <div class="card-ref">Employment vs Service Contract Policy</div>
+      </div>`;
+    return;
+  }
+
+  // Procurement path
   const track = cTrack === "academic" ? academicTrack : adminTrack;
   const approver = track.find(a => val < a.limit) || track[track.length - 1];
   const tender = tenderMethods.find(t => val >= t.min && val < t.max) || tenderMethods[tenderMethods.length - 1];
@@ -292,29 +315,16 @@ function updateFinder() {
     </div>`;
 
   if (cType === "service") {
-    const selIdx = document.getElementById("serviceTypeSelect").value;
-
-    if (selIdx !== "") {
-      const engagement = hiringData[parseInt(selIdx)];
-      if (engagement.r === "employment") {
-        html += `
-    <div class="card card-left" style="--accent:#2563eb;">
-      <div class="card-label">🔀 Routing Decision</div>
-      <div class="card-value" style="color:#2563eb;">Route to HR / Payroll</div>
-      <div class="card-desc"><strong>${engagement.t}</strong> is classified as an employment engagement and must be processed through HR/Payroll — not Purchasing.</div>
-      <div class="card-ref">Employment vs Service Contract Policy</div>
-    </div>`;
-      } else {
-        const svcApprover = val < 25000 ? "Director of Service" : "Director General";
-        const svcDesc = val < 25000 ? "Director approval sufficient under $25,000" : "Director General approval required at $25,000+";
-        html += `
+    if (engagement) {
+      const svcApprover = val < 25000 ? "Director of Service" : "Director General";
+      const svcDesc = val < 25000 ? "Director approval sufficient under $25,000" : "Director General approval required at $25,000+";
+      html += `
     <div class="card card-left" style="--accent:#7c3aed;">
       <div class="card-label">✅ Routing Confirmed — Purchasing</div>
       <div class="card-value" style="color:#7c3aed;">${svcApprover}</div>
       <div class="card-desc"><strong>${engagement.t}</strong> is a service contract. ${svcDesc}.</div>
       <div class="card-ref">By-law 9, s. 6.03 · LGCE</div>
     </div>`;
-      }
     } else {
       const svcApprover = val < 25000 ? "Director of Service" : "Director General";
       const svcDesc = val < 25000 ? "Director approval sufficient under $25,000" : "Director General approval required above $25,000";
