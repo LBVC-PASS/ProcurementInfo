@@ -274,10 +274,10 @@ document.getElementById("serviceTypeSelect").addEventListener("change", updateFi
 function updateFinder() {
   const val = parseFloat(document.getElementById("finderAmount").value.replace(/[,$\s]/g, "")) || 0;
   const results = document.getElementById("finderResults");
-  if (val <= 0) { results.style.display = "none"; return; }
+  const selIdx = document.getElementById("serviceTypeSelect").value;
+  if (val <= 0 || (cType === "service" && selIdx === "")) { results.style.display = "none"; return; }
   results.style.display = "grid";
 
-  const selIdx = document.getElementById("serviceTypeSelect").value;
   const engagement = selIdx !== "" ? hiringData[parseInt(selIdx)] : null;
   const isHR = cType === "service" && engagement && engagement.r === "employment";
 
