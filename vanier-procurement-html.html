@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Procurement Thresholds & Authority — Vanier College</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8fafc; color: #1e293b; }
+  .container { max-width: 900px; margin: 0 auto; padding: 24px; }
+  h1 { font-size: 28px; font-weight: 800; color: #0f172a; }
+  .subtitle { font-size: 14px; color: #64748b; margin-top: 8px; }
+  .subsubtitle { font-size: 12px; color: #94a3b8; margin-top: 4px; }
+  .tabs { display: flex; gap: 4px; margin: 32px 0 24px; flex-wrap: wrap; border-bottom: 2px solid #e2e8f0; }
+  .tab { padding: 10px 18px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; border-bottom: 3px solid transparent; background: transparent; color: #64748b; font-family: inherit; margin-bottom: -2px; transition: all 0.15s; }
+  .tab.active { color: #2563eb; border-bottom-color: #2563eb; }
+  .tab:hover { color: #2563eb; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+  .intro { color: #475569; margin-bottom: 20px; line-height: 1.6; font-size: 14px; }
+  .card { background: #fff; border-radius: 12px; padding: 20px; border: 1px solid #e2e8f0; }
+  .card-left { border-left: 4px solid var(--accent); }
+  .card-top { border-top: 4px solid var(--accent); }
+  .card-label { font-size: 12px; font-weight: 600; color: #94a3b8; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .card-value { font-size: 20px; font-weight: 700; }
+  .card-desc { font-size: 13px; color: #64748b; margin-top: 4px; }
+  .card-ref { font-size: 12px; color: #94a3b8; margin-top: 4px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+  .finder-box { background: #f0f9ff; border-radius: 12px; padding: 24px; margin-bottom: 24px; border: 1px solid #bae6fd; }
+  .finder-title { font-size: 14px; font-weight: 600; color: #0369a1; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 1px; }
+  .finder-row { display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end; }
+  .finder-field { flex: 1; min-width: 200px; }
+  .finder-field label { font-size: 12px; color: #64748b; display: block; margin-bottom: 4px; }
+  .finder-input { width: 100%; padding: 12px 16px; font-size: 24px; font-weight: 700; border: 2px solid #cbd5e1; border-radius: 8px; outline: none; font-family: inherit; box-sizing: border-box; }
+  .toggle-group { display: flex; border-radius: 8px; overflow: hidden; border: 2px solid #cbd5e1; }
+  .toggle-btn { flex: 1; padding: 12px 16px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; background: #fff; color: #475569; font-family: inherit; transition: all 0.15s; }
+  .toggle-btn.active { background: #0369a1; color: #fff; }
+  .strip { display: flex; gap: 16px; align-items: stretch; background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; }
+  .strip-bar { width: 6px; flex-shrink: 0; }
+  .strip-content { padding: 16px 20px 16px 12px; flex: 1; }
+  .strip-header { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px; }
+  .strip-title { font-size: 16px; font-weight: 700; color: #1e293b; }
+  .strip-amount { font-size: 14px; font-weight: 600; }
+  .strip-note { font-size: 13px; color: #64748b; margin-top: 6px; }
+  .note-box { margin-top: 24px; padding: 16px; border-radius: 8px; font-size: 13px; }
+  .note-yellow { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; }
+  .note-green { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; }
+  .note-purple { background: #faf5ff; border: 1px solid #e9d5ff; color: #6b21a8; }
+  .note-red { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; }
+  .track-columns { display: flex; gap: 24px; flex-wrap: wrap; margin-bottom: 24px; }
+  .track-col { flex: 1; min-width: 280px; }
+  .track-title { font-size: 14px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .track-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: #fff; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 6px; }
+  .track-item-name { flex: 1; font-size: 14px; font-weight: 700; color: #1e293b; }
+  .track-item-val { font-size: 13px; font-weight: 700; white-space: nowrap; }
+  .shared-title { font-size: 14px; font-weight: 700; color: #0891b2; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .big-card { background: #fff; border-radius: 12px; padding: 24px; border: 1px solid #e2e8f0; }
+  .big-num { font-size: 32px; font-weight: 800; }
+  .big-role { font-size: 16px; font-weight: 700; color: #1e293b; margin-top: 8px; }
+  .big-desc { font-size: 13px; color: #64748b; margin-top: 8px; }
+  .amend-auth { font-size: 14px; font-weight: 700; color: #1e293b; }
+  .amend-scenario { font-size: 12px; color: #94a3b8; }
+  .amend-limit { font-size: 13px; color: #475569; margin-top: 8px; line-height: 1.5; }
+  .filter-bar { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+  .filter-btn { padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid #e2e8f0; background: #fff; color: #475569; font-family: inherit; transition: all 0.15s; }
+  .filter-btn.active-all { background: #334155; color: #fff; border-color: #334155; }
+  .filter-btn.active-emp { background: #2563eb; color: #fff; border-color: #2563eb; }
+  .filter-btn.active-svc { background: #7c3aed; color: #fff; border-color: #7c3aed; }
+  .hiring-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-radius: 8px; gap: 12px; }
+  .hiring-row:nth-child(odd) { background: #f8fafc; }
+  .hiring-name { font-size: 14px; color: #1e293b; flex: 1; }
+  .hiring-badge { font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 20px; flex-shrink: 0; text-transform: uppercase; letter-spacing: 0.5px; }
+  .badge-emp { background: #dbeafe; color: #1d4ed8; }
+  .badge-svc { background: #f3e8ff; color: #7c3aed; }
+  .footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid #e2e8f0; font-size: 11px; color: #94a3b8; text-align: center; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Procurement Thresholds & Authority</h1>
+  <p class="subtitle">Vanier College — By-laws 4 & 9 · LCOP · LGCE · SEAO</p>
+  <p class="subsubtitle">Current public tender threshold: $139,000 · Next WTO update: January 1, 2028</p>
+
+  <div class="tabs" id="tabs">
+    <button class="tab active" data-tab="finder">Threshold Finder</button>
+    <button class="tab" data-tab="approval">Approval Authority</button>
+    <button class="tab" data-tab="tendering">Tendering Methods</button>
+    <button class="tab" data-tab="service">Service Contracts</button>
+    <button class="tab" data-tab="amendments">Amendments</button>
+    <button class="tab" data-tab="hiring">Employment vs Service</button>
+  </div>
+
+  <!-- THRESHOLD FINDER -->
+  <div class="panel active" id="panel-finder">
+    <div class="finder-box">
+      <div class="finder-title">Enter a contract value to see what's required</div>
+      <div class="finder-row">
+        <div class="finder-field">
+          <label>Contract Value (before taxes)</label>
+          <input type="text" class="finder-input" id="finderAmount" placeholder="e.g. 75000">
+        </div>
+        <div class="finder-field">
+          <label>Contract Type</label>
+          <div class="toggle-group" id="typeToggle">
+            <button class="toggle-btn active" data-val="goods">Goods & Services</button>
+            <button class="toggle-btn" data-val="service">Service (LGCE)</button>
+          </div>
+        </div>
+        <div class="finder-field">
+          <label>Department Track</label>
+          <div class="toggle-group" id="trackToggle">
+            <button class="toggle-btn active" data-val="academic">Academic</button>
+            <button class="toggle-btn" data-val="admin">Administrative</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="grid" id="finderResults" style="display:none;"></div>
+  </div>
+
+  <!-- APPROVAL AUTHORITY -->
+  <div class="panel" id="panel-approval">
+    <p class="intro">Under By-law 4 (Art. 3.1.1), approval authority for goods and services follows two separate tracks depending on whether the purchase originates from an academic or administrative department. Both tracks converge at the Director General level. The same thresholds apply to construction contracts. All amounts are before applicable taxes and must be within approved budget.</p>
+    <div class="track-columns">
+      <div class="track-col">
+        <div class="track-title" style="color:#2563eb;">🎓 Academic Track</div>
+        <div class="track-item" style="border-left:4px solid #6366f1;"><span class="track-item-name">Academic Coordinator</span><span class="track-item-val" style="color:#6366f1;">< $500</span></div>
+        <div class="track-item" style="border-left:4px solid #818cf8;"><span class="track-item-name">Faculty Dean</span><span class="track-item-val" style="color:#818cf8;">< $20,000</span></div>
+        <div class="track-item" style="border-left:4px solid #2563eb;"><span class="track-item-name">Academic Dean</span><span class="track-item-val" style="color:#2563eb;">< $35,000</span></div>
+      </div>
+      <div class="track-col">
+        <div class="track-title" style="color:#7c3aed;">🏢 Administrative Track</div>
+        <div class="track-item" style="border-left:4px solid #8b5cf6;"><span class="track-item-name">Administrative Manager</span><span class="track-item-val" style="color:#8b5cf6;">< $5,000</span></div>
+        <div class="track-item" style="border-left:4px solid #a78bfa;"><span class="track-item-name">Administrative Coordinator</span><span class="track-item-val" style="color:#a78bfa;">< $15,000</span></div>
+        <div class="track-item" style="border-left:4px solid #2563eb;"><span class="track-item-name">Administrative Director</span><span class="track-item-val" style="color:#2563eb;">< $35,000</span></div>
+      </div>
+    </div>
+    <div class="shared-title">⬇️ Shared — Both Tracks Converge</div>
+    <div class="track-item" style="border-left:4px solid #0891b2;"><span class="track-item-name">Director General</span><span class="track-item-val" style="color:#0891b2;">< $139,000</span></div>
+    <div class="track-item" style="border-left:4px solid #0d9488; margin-top:6px;"><span class="track-item-name">Executive Committee</span><span class="track-item-val" style="color:#0d9488;">< $500,000</span></div>
+    <div class="track-item" style="border-left:4px solid #059669; margin-top:6px;"><span class="track-item-name">Board of Directors</span><span class="track-item-val" style="color:#059669;">$500,000+</span></div>
+    <div class="note-box note-yellow"><strong>Note:</strong> Written delegation is mandatory — verbal authorization is not sufficient. All delegates must be duly authorized in writing.</div>
+  </div>
+
+  <!-- TENDERING METHODS -->
+  <div class="panel" id="panel-tendering">
+    <p class="intro">Vanier applies the LCOP tendering thresholds with an additional internal policy requiring a public tender process at 80% of the legal threshold. The current public tender threshold of $139,000 was set by the Secrétariat du Conseil du Trésor and will next be updated on January 1, 2028 per WTO inflation calculations.</p>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="strip"><div class="strip-bar" style="background:#22c55e;"></div><div class="strip-content"><div class="strip-header"><span class="strip-title">Negotiated / Direct Award</span><span class="strip-amount" style="color:#22c55e;">$0 — $35,000</span></div><div class="strip-note">No formal tender required</div></div></div>
+      <div class="strip"><div class="strip-bar" style="background:#eab308;"></div><div class="strip-content"><div class="strip-header"><span class="strip-title">Invitational Tender</span><span class="strip-amount" style="color:#eab308;">$35,000 — $111,200</span></div><div class="strip-note">Minimum 3 invitations recommended</div></div></div>
+      <div class="strip"><div class="strip-bar" style="background:#f97316;"></div><div class="strip-content"><div class="strip-header"><span class="strip-title">Internal Public Tender</span><span class="strip-amount" style="color:#f97316;">$111,200 — $139,000</span></div><div class="strip-note">Vanier policy (80% of threshold) — not legally required until $139K</div></div></div>
+      <div class="strip"><div class="strip-bar" style="background:#ef4444;"></div><div class="strip-content"><div class="strip-header"><span class="strip-title">Public Tender (SEAO)</span><span class="strip-amount" style="color:#ef4444;">$139,000+</span></div><div class="strip-note">Mandatory under LCOP — must publish on SEAO</div></div></div>
+    </div>
+    <div class="note-box note-green"><strong>SEAO Reporting:</strong> All contracts of $25,000 and above must be reported on SEAO. Public tenders ($139,000+) must be published on SEAO.</div>
+  </div>
+
+  <!-- SERVICE CONTRACTS -->
+  <div class="panel" id="panel-service">
+    <p class="intro">Service contracts under the LGCE (Loi sur la gestion et le contrôle des effectifs) have a separate approval path from general procurement. This ensures the College does not bypass workforce controls through service contract issuance. These rules apply in addition to the general approval authority under By-law 4.</p>
+    <div class="grid" style="margin-bottom:24px;">
+      <div class="big-card" style="border-top:4px solid #2563eb;"><div class="big-num" style="color:#2563eb;">< $25K</div><div class="big-role">Director of Service</div><div class="big-desc">The Director of the requesting service may approve any service contract valued below $25,000.</div></div>
+      <div class="big-card" style="border-top:4px solid #7c3aed;"><div class="big-num" style="color:#7c3aed;">≥ $25K</div><div class="big-role">Director General</div><div class="big-desc">The Director General must approve any service contract valued at $25,000 or above, as required by the LGCE.</div></div>
+    </div>
+    <div class="note-box note-purple"><strong>By-law 9, s. 6.03:</strong> All service contracts must be authorized by the Chief Executive Officer (or delegate) prior to being awarded.</div>
+  </div>
+
+  <!-- AMENDMENTS -->
+  <div class="panel" id="panel-amendments">
+    <p class="intro">Following the May 2025 amendments to By-law 9, the previous 10% cap on contract amendments has been removed and replaced with tiered authority limits. Once a contract exceeds the original approval limit through amendments, it cannot be re-delegated to a lower authority.</p>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="strip"><div class="strip-bar" style="background:#2563eb;"></div><div class="strip-content"><div><span class="amend-auth">Director</span><br><span class="amend-scenario">Contract below public tender threshold</span></div><div class="amend-limit">Total must stay below the public tender threshold</div></div></div>
+      <div class="strip"><div class="strip-bar" style="background:#f97316;"></div><div class="strip-content"><div><span class="amend-auth">Director</span><br><span class="amend-scenario">Contract above threshold</span></div><div class="amend-limit">20% of original value OR $250,000 — whichever is reached first</div></div></div>
+      <div class="strip"><div class="strip-bar" style="background:#7c3aed;"></div><div class="strip-content"><div><span class="amend-auth">Director General</span><br><span class="amend-scenario">Contract above threshold</span></div><div class="amend-limit">30% of original value OR $500,000 — whichever is reached first</div></div></div>
+      <div class="strip"><div class="strip-bar" style="background:#dc2626;"></div><div class="strip-content"><div><span class="amend-auth">Board of Directors</span><br><span class="amend-scenario">Beyond DG limits</span></div><div class="amend-limit">Required for any amendment exceeding DG authority</div></div></div>
+    </div>
+    <div class="note-box note-red"><strong>Important:</strong> Once a contract amendment pushes the total value past the original approver's authority, it cannot be re-delegated downward. The higher authority must approve all subsequent amendments.</div>
+  </div>
+
+  <!-- EMPLOYMENT VS SERVICE -->
+  <div class="panel" id="panel-hiring">
+    <p class="intro">Determining whether to hire through a short-term employment contract (processed by HR/Payroll) or a service contract (processed by Purchasing) depends on the nature of the engagement. This distinction is critical because service contracts fall under LGCE oversight and procurement rules.</p>
+    <div class="filter-bar" id="hiringFilters">
+      <button class="filter-btn active-all" data-filter="all">All (25)</button>
+      <button class="filter-btn" data-filter="employment">Employment — HR/Payroll (12)</button>
+      <button class="filter-btn" data-filter="service">Service Contract — Purchasing (13)</button>
+    </div>
+    <div id="hiringList"></div>
+  </div>
+
+  <div class="footer">Vanier College — Safety & Security Services · Last updated: March 2026</div>
+</div>
+
+<script>
+const hiringData = [
+  {t:"Coaches (paid through lump sum)",r:"employment"},{t:"Fitness Instructors",r:"employment"},{t:"Therapists",r:"service"},{t:"External Guest Speakers",r:"service"},{t:"Internal Guest Speakers",r:"service"},{t:"Guest Speakers (with companies)",r:"service"},{t:"Speakers (SIN number only)",r:"service"},{t:"Intensive PhysEd Assistants / Lab Technicians",r:"employment"},{t:"Vanier Students — Research Assistants (grants)",r:"employment"},{t:"Non-Vanier Students — Research Assistants (grants)",r:"employment"},{t:"Vanier Students — Poster Creation for College Activity",r:"service"},{t:"Vanier Students — Performance at College Function",r:"service"},{t:"Tutors and Summer Tutors",r:"service"},{t:"Consultant (no registered company)",r:"service"},{t:"Consultant (registered company)",r:"service"},{t:"External Consultant needing campus access",r:"employment"},{t:"Non-Credit Teaching — Language School",r:"employment"},{t:"Non-Credit Teaching — Paid through company",r:"service"},{t:"Non-Credit Teaching — Paid as individual",r:"employment"},{t:"Homestay Agreements",r:"service"},{t:"Music Teacher Per Honorarium (Music School)",r:"employment"},{t:"Actors — Patient Representation (specialized courses)",r:"service"},{t:"RAC Continuing Education Specialist (timesheets)",r:"employment"},{t:"Instructors — ECE/ASP Training for RAC",r:"employment"},{t:"Programs Developer (materials/day course)",r:"service"}
+];
+
+const academicTrack = [{role:"Academic Coordinator",limit:500,color:"#6366f1"},{role:"Faculty Dean",limit:20000,color:"#818cf8"},{role:"Academic Dean",limit:35000,color:"#2563eb"},{role:"Director General",limit:139000,color:"#0891b2"},{role:"Executive Committee",limit:500000,color:"#0d9488"},{role:"Board of Directors",limit:Infinity,color:"#059669"}];
+const adminTrack = [{role:"Administrative Manager",limit:5000,color:"#8b5cf6"},{role:"Administrative Coordinator",limit:15000,color:"#a78bfa"},{role:"Administrative Director",limit:35000,color:"#2563eb"},{role:"Director General",limit:139000,color:"#0891b2"},{role:"Executive Committee",limit:500000,color:"#0d9488"},{role:"Board of Directors",limit:Infinity,color:"#059669"}];
+const tenderMethods = [{method:"Negotiated / Direct Award",min:0,max:35000,color:"#22c55e",note:"No formal tender required"},{method:"Invitational Tender",min:35000,max:111200,color:"#eab308",note:"Minimum 3 invitations recommended"},{method:"Internal Public Tender",min:111200,max:139000,color:"#f97316",note:"Vanier policy (80% of threshold)"},{method:"Public Tender (SEAO)",min:139000,max:Infinity,color:"#ef4444",note:"Mandatory under LCOP"}];
+
+const fmt = n => n === Infinity ? "No limit" : "$" + n.toLocaleString("en-CA");
+let cType = "goods", cTrack = "academic", hFilter = "all";
+
+// Tabs
+document.querySelectorAll(".tab").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById("panel-" + btn.dataset.tab).classList.add("active");
+  });
+});
+
+// Toggle groups
+function setupToggle(id, setter) {
+  document.getElementById(id).querySelectorAll(".toggle-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      btn.parentElement.querySelectorAll(".toggle-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      setter(btn.dataset.val);
+      updateFinder();
+    });
+  });
+}
+setupToggle("typeToggle", v => cType = v);
+setupToggle("trackToggle", v => cTrack = v);
+
+document.getElementById("finderAmount").addEventListener("input", updateFinder);
+
+function updateFinder() {
+  const val = parseFloat(document.getElementById("finderAmount").value.replace(/[,$\s]/g, "")) || 0;
+  const results = document.getElementById("finderResults");
+  if (val <= 0) { results.style.display = "none"; return; }
+  results.style.display = "grid";
+
+  const track = cTrack === "academic" ? academicTrack : adminTrack;
+  const approver = track.find(a => val < a.limit) || track[track.length - 1];
+  const tender = tenderMethods.find(t => val >= t.min && val < t.max) || tenderMethods[tenderMethods.length - 1];
+  const seao = val >= 25000;
+  const trackLabel = cTrack === "academic" ? "Academic" : "Administrative";
+
+  let html = `
+    <div class="card card-left" style="--accent:${approver.color};">
+      <div class="card-label">✍️ Approval Authority (${trackLabel} Track)</div>
+      <div class="card-value" style="color:${approver.color};">${approver.role}</div>
+      <div class="card-desc">${approver.limit === Infinity ? "Approves amounts of $500,000 and above" : "Approves up to " + fmt(approver.limit)}</div>
+      <div class="card-ref">By-law 4, Art. 3.1.1</div>
+    </div>`;
+
+  if (cType === "service") {
+    const svcApprover = val < 25000 ? "Director of Service" : "Director General";
+    const svcDesc = val < 25000 ? "Director approval sufficient under $25,000" : "Director General approval required above $25,000";
+    html += `
+    <div class="card card-left" style="--accent:#7c3aed;">
+      <div class="card-label">📋 Service Contract (LGCE)</div>
+      <div class="card-value" style="color:#7c3aed;">${svcApprover}</div>
+      <div class="card-desc">${svcDesc}</div>
+      <div class="card-ref">By-law 9, s. 6.03</div>
+    </div>`;
+  }
+
+  html += `
+    <div class="card card-left" style="--accent:${tender.color};">
+      <div class="card-label">📢 Tendering Method</div>
+      <div class="card-value" style="color:${tender.color};">${tender.method}</div>
+      <div class="card-desc">${tender.note}</div>
+    </div>
+    <div class="card card-left" style="--accent:${seao ? "#dc2626" : "#16a34a"};">
+      <div class="card-label">🌐 SEAO Obligation</div>
+      <div class="card-value" style="color:${seao ? "#dc2626" : "#16a34a"};">${seao ? "Yes — SEAO Reporting" : "No SEAO Obligation"}</div>
+      <div class="card-desc">${val >= 139000 ? "Must publish call for tenders on SEAO" : seao ? "Contract must be reported on SEAO ($25K+ threshold)" : "Below $25,000 reporting threshold"}</div>
+    </div>`;
+
+  results.innerHTML = html;
+}
+
+// Hiring filters
+function renderHiring() {
+  const list = document.getElementById("hiringList");
+  const filtered = hFilter === "all" ? hiringData : hiringData.filter(h => h.r === hFilter);
+  list.innerHTML = filtered.map((h, i) => `
+    <div class="hiring-row" style="background:${i % 2 === 0 ? "#f8fafc" : "#fff"};">
+      <span class="hiring-name">${h.t}</span>
+      <span class="hiring-badge ${h.r === "employment" ? "badge-emp" : "badge-svc"}">${h.r === "employment" ? "HR / Payroll" : "Purchasing"}</span>
+    </div>`).join("");
+}
+
+document.getElementById("hiringFilters").querySelectorAll(".filter-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".filter-btn").forEach(b => { b.className = "filter-btn"; });
+    const f = btn.dataset.filter;
+    btn.classList.add(f === "all" ? "active-all" : f === "employment" ? "active-emp" : "active-svc");
+    hFilter = f;
+    renderHiring();
+  });
+});
+
+renderHiring();
+</script>
+</body>
+</html>
