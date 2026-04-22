@@ -204,9 +204,9 @@
   <div class="panel" id="panel-hiring">
     <p class="intro">Determining whether to hire through a short-term employment contract (processed by HR/Payroll) or a service contract (processed by Purchasing) depends on the nature of the engagement. This distinction is critical because service contracts fall under LGCE oversight and procurement rules.</p>
     <div class="filter-bar" id="hiringFilters">
-      <button class="filter-btn active-all" data-filter="all">All (25)</button>
+      <button class="filter-btn active-all" data-filter="all">All (27)</button>
       <button class="filter-btn" data-filter="employment">Employment — HR/Payroll (12)</button>
-      <button class="filter-btn" data-filter="service">Service Contract — Purchasing (13)</button>
+      <button class="filter-btn" data-filter="service">Service Contract — Purchasing (15)</button>
     </div>
     <div id="hiringList"></div>
   </div>
@@ -216,7 +216,33 @@
 
 <script>
 const hiringData = [
-  {t:"Coaches (paid through lump sum)",r:"employment"},{t:"Fitness Instructors",r:"employment"},{t:"Therapists",r:"service"},{t:"External Guest Speakers",r:"service"},{t:"Internal Guest Speakers",r:"service"},{t:"Guest Speakers (with companies)",r:"service"},{t:"Speakers (SIN number only)",r:"service"},{t:"Intensive PhysEd Assistants / Lab Technicians",r:"employment"},{t:"Vanier Students — Research Assistants (grants)",r:"employment"},{t:"Non-Vanier Students — Research Assistants (grants)",r:"employment"},{t:"Vanier Students — Poster Creation for College Activity",r:"service"},{t:"Vanier Students — Performance at College Function",r:"service"},{t:"Tutors and Summer Tutors",r:"service"},{t:"Consultant (no registered company)",r:"service"},{t:"Consultant (registered company)",r:"service"},{t:"External Consultant needing campus access",r:"employment"},{t:"Non-Credit Teaching — Language School",r:"employment"},{t:"Non-Credit Teaching — Paid through company",r:"service"},{t:"Non-Credit Teaching — Paid as individual",r:"employment"},{t:"Homestay Agreements",r:"service"},{t:"Music Teacher Per Honorarium (Music School)",r:"employment"},{t:"Actors — Patient Representation (specialized courses)",r:"service"},{t:"RAC Continuing Education Specialist (timesheets)",r:"employment"},{t:"Instructors — ECE/ASP Training for RAC",r:"employment"},{t:"Programs Developer (materials/day course)",r:"service"}
+  {t:"Actors — Patient Representation (specialized courses)",r:"service"},
+  {t:"Architect",r:"service"},
+  {t:"Coaches (paid through lump sum)",r:"employment"},
+  {t:"Consultant (no registered company)",r:"service"},
+  {t:"Consultant (registered company)",r:"service"},
+  {t:"Engineer",r:"service"},
+  {t:"External Consultant needing campus access",r:"employment"},
+  {t:"External Guest Speakers",r:"service"},
+  {t:"Fitness Instructors",r:"employment"},
+  {t:"Guest Speakers (with companies)",r:"service"},
+  {t:"Homestay Agreements",r:"service"},
+  {t:"Instructors — ECE/ASP Training for RAC",r:"employment"},
+  {t:"Intensive PhysEd Assistants / Lab Technicians",r:"employment"},
+  {t:"Internal Guest Speakers",r:"service"},
+  {t:"Music Teacher Per Honorarium (Music School)",r:"employment"},
+  {t:"Non-Credit Teaching — Language School",r:"employment"},
+  {t:"Non-Credit Teaching — Paid as individual",r:"employment"},
+  {t:"Non-Credit Teaching — Paid through company",r:"service"},
+  {t:"Non-Vanier Students — Research Assistants (grants)",r:"employment"},
+  {t:"Programs Developer (materials/day course)",r:"service"},
+  {t:"RAC Continuing Education Specialist (timesheets)",r:"employment"},
+  {t:"Speakers (SIN number only)",r:"service"},
+  {t:"Therapists",r:"service"},
+  {t:"Tutors and Summer Tutors",r:"service"},
+  {t:"Vanier Students — Performance at College Function",r:"service"},
+  {t:"Vanier Students — Poster Creation for College Activity",r:"service"},
+  {t:"Vanier Students — Research Assistants (grants)",r:"employment"}
 ];
 
 const academicTrack = [{role:"Academic Coordinator",limit:500,color:"#6366f1"},{role:"Faculty Dean",limit:20000,color:"#818cf8"},{role:"Academic Dean",limit:35000,color:"#2563eb"},{role:"Director General",limit:139000,color:"#0891b2"},{role:"Executive Committee",limit:500000,color:"#0d9488"},{role:"Board of Directors",limit:Infinity,color:"#059669"}];
