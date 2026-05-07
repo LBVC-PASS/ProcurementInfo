@@ -81,6 +81,29 @@
   .badge-emp { background: #dbeafe; color: #1d4ed8; }
   .badge-svc { background: #f3e8ff; color: #7c3aed; }
   .footer { margin-top: 40px; padding-top: 16px; border-top: 2px solid #C8102E; font-size: 11px; color: #94a3b8; text-align: center; }
+  /* ── Contract Decision Guide ── */
+  .cc-score-banner { background:#fff; border:1px solid #e2e8f0; border-radius:10px; padding:12px 20px; margin-bottom:20px; font-size:14px; color:#475569; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+  .cc-score-banner strong { font-size:18px; color:#1e293b; }
+  .cc-section-header { margin:24px 0 12px; padding-bottom:6px; border-bottom:2px solid #e2e8f0; display:flex; justify-content:space-between; align-items:baseline; }
+  .cc-section-title { font-size:13px; font-weight:700; color:#C8102E; text-transform:uppercase; letter-spacing:0.8px; }
+  .cc-section-subtotal { font-size:12px; font-weight:600; color:#64748b; }
+  .cc-q-row { display:flex; align-items:center; gap:16px; padding:14px 0; border-bottom:1px solid #f1f5f9; flex-wrap:wrap; }
+  .cc-q-num { font-size:12px; font-weight:700; color:#94a3b8; width:24px; flex-shrink:0; }
+  .cc-q-text { flex:1; font-size:14px; color:#1e293b; line-height:1.5; min-width:200px; }
+  .cc-q-pts-note { font-size:11px; color:#94a3b8; display:block; margin-top:2px; }
+  .cc-ctx-row { display:flex; align-items:flex-start; gap:10px; padding:10px 14px; margin:8px 0; background:#f8fafc; border-radius:8px; border-left:3px solid #cbd5e1; }
+  .cc-ctx-icon { font-size:14px; flex-shrink:0; margin-top:1px; }
+  .cc-ctx-text { font-size:13px; color:#94a3b8; font-style:italic; }
+  .cc-q-toggle { width:140px; flex-shrink:0; }
+  .cc-verdict-box { border-radius:12px; padding:24px; margin-top:8px; border:2px solid transparent; }
+  .cc-verdict-employee { background:#f0fdf4; border-color:#86efac; color:#166534; }
+  .cc-verdict-selfemployed { background:#eff6ff; border-color:#93c5fd; color:#1e40af; }
+  .cc-verdict-ambiguous { background:#fffbeb; border-color:#fde68a; color:#92400e; }
+  .cc-verdict-title { font-size:20px; font-weight:800; margin-bottom:8px; }
+  .cc-verdict-score { font-size:14px; margin-bottom:12px; opacity:0.8; }
+  .cc-verdict-action { font-size:14px; font-weight:600; line-height:1.6; }
+  .cc-print-btn { padding:10px 24px; font-size:13px; font-weight:600; cursor:pointer; border:2px solid #C8102E; border-radius:8px; background:#C8102E; color:#fff; font-family:inherit; transition:all 0.15s; }
+  .cc-print-btn:hover { background:#a30d24; border-color:#a30d24; }
 </style>
 </head>
 <body>
@@ -104,6 +127,7 @@
     <button class="tab" data-tab="service">Service Contracts</button>
     <button class="tab" data-tab="amendments">Amendments</button>
     <button class="tab" data-tab="hiring">Employment vs Service</button>
+    <button class="tab" data-tab="classifier">Contract Decision Guide</button>
   </div>
 
   <!-- THRESHOLD FINDER -->
@@ -209,6 +233,36 @@
       <button class="filter-btn" data-filter="service">Service Contract — Purchasing (15)</button>
     </div>
     <div id="hiringList"></div>
+  </div>
+
+  <!-- CONTRACT DECISION GUIDE -->
+  <div class="panel" id="panel-classifier">
+    <div class="finder-box" id="cc-header">
+      <div class="finder-title" id="cc-title">Contract Decision Guide</div>
+      <div class="finder-row" style="align-items:flex-start; gap:16px; flex-wrap:wrap;">
+        <div class="finder-field" style="flex:2; min-width:200px;">
+          <label id="cc-lbl-title">Job / Role Title</label>
+          <input type="text" class="finder-input" id="cc-jobtitle" style="font-size:15px; padding:10px 14px;" placeholder="e.g. Graphic Designer">
+        </div>
+        <div class="finder-field" style="flex:1; min-width:140px;">
+          <label id="cc-lbl-lang">Language / Langue</label>
+          <div class="toggle-group" id="cc-lang-toggle">
+            <button class="toggle-btn active" data-val="en">EN</button>
+            <button class="toggle-btn" data-val="fr">FR</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="cc-score-banner" class="cc-score-banner" style="display:none;">
+      <span id="cc-score-label">Score</span>: <strong id="cc-score-value">0</strong> / 28
+      &nbsp;·&nbsp;
+      <span id="cc-answered-label">Answered</span>: <strong id="cc-answered-value">0</strong> / 14
+    </div>
+    <div id="cc-questions"></div>
+    <div id="cc-verdict" style="display:none;"></div>
+    <div style="margin-top:24px; text-align:right; display:none;" id="cc-print-row">
+      <button class="cc-print-btn" id="cc-print-btn" onclick="ccPrint()"></button>
+    </div>
   </div>
 
   <div class="footer">Vanier College &nbsp;·&nbsp; Finance &amp; Procurement Services &nbsp;·&nbsp; Last updated: March 2026</div>
@@ -401,6 +455,346 @@ document.getElementById("hiringFilters").querySelectorAll(".filter-btn").forEach
 });
 
 renderHiring();
+
+// ── Contract Decision Guide ──────────────────────────────────────────────────
+
+let ccLang = "en";
+const ccAnswers = {};
+
+const CC = {
+  en: {
+    tabLabel: "Contract Decision Guide",
+    panelTitle: "Contract Decision Guide",
+    titleLabel: "Job / Role Title",
+    titlePlaceholder: "e.g. Graphic Designer",
+    langLabel: "Language / Langue",
+    scoreLabel: "Score",
+    answeredLabel: "Answered",
+    printBtn: "Print Summary",
+    yesLabel: "Yes",
+    noLabel: "No",
+    sections: [
+      { id:"A", title:"Section A — Subordination Relationship" },
+      { id:"B", title:"Section B — Provision of Labour" },
+      { id:"C", title:"Section C — Remuneration / Economic Reality" }
+    ],
+    questions: [
+      { id:1,  sec:"A", text:"Is the College responsible for planning the work to be done? (in the broad sense of the term)", yesScore:0, ptsNote:"No = 2 pts" },
+      { id:2,  sec:"A", text:"Does the College determine the service provider's working methods?",                              yesScore:0, ptsNote:"No = 2 pts" },
+      { id:3,  sec:"A", text:"Does the College supervise the work performance?",                                               yesScore:0, ptsNote:"No = 2 pts" },
+      { id:4,  sec:"A", text:"Does the College decide the work schedule?",                                                     yesScore:0, ptsNote:"No = 2 pts" },
+      { id:5,  sec:"A", text:"Will the provider's performance be monitored by the College?",                                   yesScore:0, ptsNote:"No = 2 pts" },
+      { id:6,  sec:"A", text:"Will the provider's attendance at work be monitored by the College?",                            yesScore:0, ptsNote:"No = 2 pts" },
+      { id:7,  sec:"B", text:"Can they hire staff to perform the work?",                                                       yesScore:2, ptsNote:"Yes = 2 pts" },
+      { id:8,  sec:"B", text:"Is the work integrated into the College's activities? (Included in the College's mission)",     yesScore:0, ptsNote:"No = 2 pts" },
+      { id:9,  sec:"B", text:"Is this a one-off job? (It does not justify hiring staff.)",                                     yesScore:2, ptsNote:"Yes = 2 pts" },
+      { id:10, sec:"B", text:"Is this the kind of neutral and independent expertise or opinion that the College needs at this time?", yesScore:2, ptsNote:"Yes = 2 pts" },
+      { id:11, sec:"C", text:"Does it act exclusively on behalf of the College (economic dependence)?",                        yesScore:0, ptsNote:"No = 2 pts" },
+      { id:12, sec:"C", text:"Do the tools and equipment needed to perform the work belong to the College?",                   yesScore:0, ptsNote:"No = 2 pts" },
+      { id:13, sec:"C", text:"Does the College assume the risk of losses related to the provision of work?",                   yesScore:0, ptsNote:"No = 2 pts" },
+      { id:14, sec:"C", text:"Does the College benefit from the profits generated by the work performed?",                     yesScore:2, ptsNote:"Yes = 2 pts" }
+    ],
+    contextuals: [
+      { afterQ:4,   text:"Does the contract specify a result to achieve and an end date when reached?" },
+      { afterQ:6,   text:"Does the contract provide management functions within the College for the provider?" },
+      { beforeQ:7,  text:"Can the provider be replaced by someone of their choice at any time?" },
+      { afterQ:8,   text:"Is the specific expertise sought from the provider only available externally?" },
+      { afterQ:9,   text:"Is this type of work traditionally outsourced?" },
+      { beforeQ:11, text:"Is the provider incorporated? Will they provide invoices to be paid?" },
+      { afterQ:12,  text:"Does the College assume maintenance costs for the tools/equipment?" }
+    ],
+    verdicts: {
+      employee: {
+        label: "Employee",
+        subtitle: "Non-unionized employment contract",
+        routing: "Route to HR / Payroll. This engagement presents characteristics of an employment relationship and should be processed as a short-term employment contract — not a service contract.",
+        scoreRange: "Score ≤ 10"
+      },
+      ambiguous: {
+        label: "Ambiguous Zone",
+        subtitle: "Further analysis required",
+        routing: "Consult HR and Purchasing before proceeding. The score falls in a grey zone where either contract type may apply. Legal or HR review is strongly recommended before issuing any contract.",
+        scoreRange: "Score 12–20"
+      },
+      selfEmployed: {
+        label: "Self-Employed Worker",
+        subtitle: "Service contract — Purchasing",
+        routing: "Route to Purchasing. Issue as a service contract subject to LGCE oversight. The provider demonstrates sufficient independence to be engaged as a self-employed contractor.",
+        scoreRange: "Score ≥ 22"
+      }
+    },
+    printTitle: "Contract Decision Guide — Vanier College",
+    printDate: "Date",
+    printAnswer: "Answer",
+    printPts: "Pts",
+    printTotalScore: "Total Score",
+    printResult: "Classification Result"
+  },
+  fr: {
+    tabLabel: "Guide de décision contractuelle",
+    panelTitle: "Guide de décision contractuelle",
+    titleLabel: "Titre du poste / rôle",
+    titlePlaceholder: "p. ex. Designer graphique",
+    langLabel: "Language / Langue",
+    scoreLabel: "Score",
+    answeredLabel: "Répondu",
+    printBtn: "Imprimer le résumé",
+    yesLabel: "Oui",
+    noLabel: "Non",
+    sections: [
+      { id:"A", title:"Section A — Lien de subordination" },
+      { id:"B", title:"Section B — Prestation de travail" },
+      { id:"C", title:"Section C — Rémunération / Réalité économique" }
+    ],
+    questions: [
+      { id:1,  sec:"A", text:"Le Collège est-il responsable de la planification du travail à effectuer? (au sens large du terme)", yesScore:0, ptsNote:"Non = 2 pts" },
+      { id:2,  sec:"A", text:"Le Collège détermine-t-il les méthodes de travail du prestataire?",                                   yesScore:0, ptsNote:"Non = 2 pts" },
+      { id:3,  sec:"A", text:"Le Collège supervise-t-il l'exécution du travail?",                                                   yesScore:0, ptsNote:"Non = 2 pts" },
+      { id:4,  sec:"A", text:"Le Collège décide-t-il de l'horaire de travail?",                                                     yesScore:0, ptsNote:"Non = 2 pts" },
+      { id:5,  sec:"A", text:"La performance du prestataire sera-t-elle surveillée par le Collège?",                                 yesScore:0, ptsNote:"Non = 2 pts" },
+      { id:6,  sec:"A", text:"La présence du prestataire au travail sera-t-elle surveillée par le Collège?",                         yesScore:0, ptsNote:"Non = 2 pts" },
+      { id:7,  sec:"B", text:"Peut-il ou elle embaucher du personnel pour exécuter le travail?",                                     yesScore:2, ptsNote:"Oui = 2 pts" },
+      { id:8,  sec:"B", text:"Le travail est-il intégré aux activités du Collège? (Inclus dans la mission du Collège)",             yesScore:0, ptsNote:"Non = 2 pts" },
+      { id:9,  sec:"B", text:"S'agit-il d'un travail ponctuel? (Il ne justifie pas l'embauche de personnel.)",                      yesScore:2, ptsNote:"Oui = 2 pts" },
+      { id:10, sec:"B", text:"S'agit-il du type d'expertise neutre et indépendante dont le Collège a besoin en ce moment?",         yesScore:2, ptsNote:"Oui = 2 pts" },
+      { id:11, sec:"C", text:"Agit-il exclusivement pour le compte du Collège (dépendance économique)?",                            yesScore:0, ptsNote:"Non = 2 pts" },
+      { id:12, sec:"C", text:"Les outils et équipements nécessaires à l'exécution du travail appartiennent-ils au Collège?",        yesScore:0, ptsNote:"Non = 2 pts" },
+      { id:13, sec:"C", text:"Le Collège assume-t-il le risque de pertes liées à la prestation du travail?",                        yesScore:0, ptsNote:"Non = 2 pts" },
+      { id:14, sec:"C", text:"Le Collège bénéficie-t-il des profits générés par le travail effectué?",                              yesScore:2, ptsNote:"Oui = 2 pts" }
+    ],
+    contextuals: [
+      { afterQ:4,   text:"Le contrat précise-t-il un résultat à atteindre et une date de fin lorsqu'il est atteint?" },
+      { afterQ:6,   text:"Le contrat prévoit-il des fonctions de gestion au sein du Collège pour le prestataire?" },
+      { beforeQ:7,  text:"Le prestataire peut-il être remplacé par une personne de son choix à tout moment?" },
+      { afterQ:8,   text:"L'expertise spécifique recherchée auprès du prestataire est-elle uniquement disponible à l'externe?" },
+      { afterQ:9,   text:"Ce type de travail est-il traditionnellement sous-traité?" },
+      { beforeQ:11, text:"Le prestataire est-il constitué en société? Fournira-t-il des factures à payer?" },
+      { afterQ:12,  text:"Le Collège assume-t-il les coûts d'entretien des outils/équipements?" }
+    ],
+    verdicts: {
+      employee: {
+        label: "Employé(e)",
+        subtitle: "Contrat de travail non syndiqué",
+        routing: "Acheminer à RH / Paie. Cet engagement présente des caractéristiques d'une relation d'emploi et doit être traité comme un contrat de travail à court terme — et non comme un contrat de service.",
+        scoreRange: "Score ≤ 10"
+      },
+      ambiguous: {
+        label: "Zone ambiguë",
+        subtitle: "Analyse complémentaire requise",
+        routing: "Consulter les RH et les Achats avant de procéder. Le score se situe dans une zone grise où l'un ou l'autre type de contrat peut s'appliquer. Une révision juridique ou RH est fortement recommandée avant d'émettre tout contrat.",
+        scoreRange: "Score 12–20"
+      },
+      selfEmployed: {
+        label: "Travailleur autonome",
+        subtitle: "Contrat de service — Achats",
+        routing: "Acheminer aux Achats. Émettre comme contrat de service sous la surveillance de la LGCE. Le prestataire démontre une indépendance suffisante pour être engagé comme entrepreneur autonome.",
+        scoreRange: "Score ≥ 22"
+      }
+    },
+    printTitle: "Guide de décision contractuelle — Collège Vanier",
+    printDate: "Date",
+    printAnswer: "Réponse",
+    printPts: "Pts",
+    printTotalScore: "Score total",
+    printResult: "Résultat de la classification"
+  }
+};
+
+function ccQuestionScore(q, answer) {
+  return answer === true ? q.yesScore : (2 - q.yesScore);
+}
+
+function ccCalcScore() {
+  const qs = CC[ccLang].questions;
+  let total = 0, answered = 0;
+  const bySection = { A:0, B:0, C:0 };
+  qs.forEach(q => {
+    if (ccAnswers[q.id] !== undefined) {
+      answered++;
+      const pts = ccQuestionScore(q, ccAnswers[q.id]);
+      total += pts;
+      bySection[q.sec] += pts;
+    }
+  });
+  return { total, bySection, answered };
+}
+
+function ccVerdictKey(score) {
+  if (score < 12) return "employee";
+  if (score <= 20) return "ambiguous";
+  return "selfEmployed";
+}
+
+function ccRender() {
+  const L = CC[ccLang];
+  const { total, bySection, answered } = ccCalcScore();
+  const allAnswered = answered === 14;
+
+  document.querySelector('[data-tab="classifier"]').textContent = L.tabLabel;
+  document.getElementById("cc-title").textContent = L.panelTitle;
+  document.getElementById("cc-lbl-title").textContent = L.titleLabel;
+  document.getElementById("cc-jobtitle").placeholder = L.titlePlaceholder;
+  document.getElementById("cc-lbl-lang").textContent = L.langLabel;
+  document.getElementById("cc-print-btn").textContent = L.printBtn;
+
+  const banner = document.getElementById("cc-score-banner");
+  banner.style.display = "flex";
+  document.getElementById("cc-score-label").textContent = L.scoreLabel;
+  document.getElementById("cc-score-value").textContent = total;
+  document.getElementById("cc-answered-label").textContent = L.answeredLabel;
+  document.getElementById("cc-answered-value").textContent = answered;
+
+  document.getElementById("cc-print-row").style.display = allAnswered ? "block" : "none";
+
+  const ctxAfter = {}, ctxBefore = {};
+  L.contextuals.forEach(c => {
+    if (c.afterQ  !== undefined) ctxAfter[c.afterQ]   = c.text;
+    if (c.beforeQ !== undefined) ctxBefore[c.beforeQ] = c.text;
+  });
+
+  let html = "";
+  let currentSection = null;
+
+  L.questions.forEach(q => {
+    if (q.sec !== currentSection) {
+      currentSection = q.sec;
+      const sec = L.sections.find(s => s.id === q.sec);
+      html += `<div class="cc-section-header">
+        <span class="cc-section-title">${sec.title}</span>
+        <span class="cc-section-subtotal" id="cc-sub-${q.sec}">${bySection[q.sec]} pts</span>
+      </div>`;
+    }
+
+    if (ctxBefore[q.id]) {
+      html += `<div class="cc-ctx-row"><span class="cc-ctx-icon">💬</span><span class="cc-ctx-text">${ctxBefore[q.id]}</span></div>`;
+    }
+
+    const ans = ccAnswers[q.id];
+    const yesActive = ans === true  ? " active" : "";
+    const noActive  = ans === false ? " active" : "";
+    const printAns  = ans === undefined ? "" : ans === true ? L.yesLabel : L.noLabel;
+
+    html += `<div class="cc-q-row" data-print-answer="${printAns}">
+      <span class="cc-q-num">${q.id}.</span>
+      <span class="cc-q-text">${q.text}<span class="cc-q-pts-note">${q.ptsNote}</span></span>
+      <div class="toggle-group cc-q-toggle">
+        <button class="toggle-btn${yesActive}" data-qid="${q.id}" data-ans="yes">${L.yesLabel}</button>
+        <button class="toggle-btn${noActive}"  data-qid="${q.id}" data-ans="no">${L.noLabel}</button>
+      </div>
+    </div>`;
+
+    if (ctxAfter[q.id]) {
+      html += `<div class="cc-ctx-row"><span class="cc-ctx-icon">💬</span><span class="cc-ctx-text">${ctxAfter[q.id]}</span></div>`;
+    }
+  });
+
+  document.getElementById("cc-questions").innerHTML = html;
+
+  document.getElementById("cc-questions").querySelectorAll(".toggle-btn[data-qid]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      ccAnswers[parseInt(btn.dataset.qid)] = btn.dataset.ans === "yes";
+      ccRender();
+    });
+  });
+
+  const verdictDiv = document.getElementById("cc-verdict");
+  if (allAnswered) {
+    const key = ccVerdictKey(total);
+    const v = L.verdicts[key];
+    const css = key === "employee" ? "cc-verdict-employee" : key === "ambiguous" ? "cc-verdict-ambiguous" : "cc-verdict-selfemployed";
+    verdictDiv.innerHTML = `<div class="cc-verdict-box ${css}">
+      <div class="cc-verdict-title">${v.label}</div>
+      <div class="cc-verdict-score">${v.scoreRange} &nbsp;·&nbsp; ${L.scoreLabel}: ${total} / 28</div>
+      <div class="cc-verdict-action">${v.subtitle}<br><br>${v.routing}</div>
+    </div>`;
+    verdictDiv.style.display = "block";
+  } else {
+    verdictDiv.style.display = "none";
+  }
+}
+
+document.getElementById("cc-lang-toggle").querySelectorAll(".toggle-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.getElementById("cc-lang-toggle").querySelectorAll(".toggle-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    ccLang = btn.dataset.val;
+    ccRender();
+  });
+});
+
+function ccPrint() {
+  const L = CC[ccLang];
+  const { total, bySection } = ccCalcScore();
+  const key = ccVerdictKey(total);
+  const v = L.verdicts[key];
+  const jobtitle = document.getElementById("cc-jobtitle").value.trim() || "—";
+  const today = new Date().toLocaleDateString(ccLang === "fr" ? "fr-CA" : "en-CA", { year:"numeric", month:"long", day:"numeric" });
+  const verdictColor = key === "employee" ? "#166534" : key === "ambiguous" ? "#92400e" : "#1e40af";
+  const verdictBg    = key === "employee" ? "#f0fdf4" : key === "ambiguous" ? "#fffbeb" : "#eff6ff";
+
+  let rowsHtml = "";
+  let currentSec = null;
+  L.questions.forEach(q => {
+    if (q.sec !== currentSec) {
+      currentSec = q.sec;
+      const sec = L.sections.find(s => s.id === q.sec);
+      rowsHtml += `<tr class="sec-hdr"><td colspan="3"><strong>${sec.title}</strong> &nbsp;— ${bySection[q.sec]} pts</td></tr>`;
+    }
+    const ans = ccAnswers[q.id];
+    const pts = ccQuestionScore(q, ans);
+    const ansText = ans === true ? L.yesLabel : L.noLabel;
+    rowsHtml += `<tr>
+      <td style="width:28px;color:#888;">${q.id}.</td>
+      <td>${q.text} <em style="color:#aaa;font-size:11px;">(${q.ptsNote})</em></td>
+      <td style="text-align:center;width:50px;">${ansText}</td>
+      <td style="text-align:center;width:36px;">${pts}</td>
+    </tr>`;
+  });
+
+  const win = window.open("", "_blank");
+  win.document.write(`<!DOCTYPE html><html lang="${ccLang}"><head>
+    <meta charset="UTF-8">
+    <title>${L.printTitle}</title>
+    <style>
+      body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:12px;color:#1e293b;margin:20px 32px;}
+      h1{font-size:18px;color:#C8102E;margin-bottom:4px;}
+      .meta{font-size:12px;color:#64748b;margin-bottom:20px;}
+      table{width:100%;border-collapse:collapse;margin-bottom:20px;}
+      th{background:#f1f5f9;font-size:11px;text-align:left;padding:6px 8px;border-bottom:2px solid #e2e8f0;}
+      td{padding:6px 8px;border-bottom:1px solid #f1f5f9;vertical-align:top;}
+      .sec-hdr td{background:#f8fafc;font-size:11px;color:#C8102E;padding:8px 8px 4px;text-transform:uppercase;letter-spacing:0.5px;border-bottom:2px solid #e2e8f0;}
+      .verdict{border-radius:8px;padding:16px;background:${verdictBg};border:2px solid ${verdictColor};color:${verdictColor};margin-top:16px;}
+      .verdict h2{font-size:16px;margin-bottom:4px;}
+      .verdict p{font-size:12px;margin-top:6px;}
+      .footer{margin-top:24px;font-size:10px;color:#94a3b8;border-top:1px solid #e2e8f0;padding-top:8px;}
+    </style>
+  </head><body>
+    <h1>${L.printTitle}</h1>
+    <div class="meta">
+      ${L.titleLabel}: <strong>${jobtitle}</strong> &nbsp;·&nbsp; ${L.printDate}: <strong>${today}</strong>
+    </div>
+    <table>
+      <thead><tr><th>#</th><th>${ccLang === "en" ? "Question" : "Question"}</th><th style="text-align:center">${L.printAnswer}</th><th style="text-align:center">${L.printPts}</th></tr></thead>
+      <tbody>${rowsHtml}</tbody>
+      <tfoot><tr>
+        <td colspan="2" style="font-weight:700;padding-top:10px;">${L.printTotalScore}</td>
+        <td></td>
+        <td style="text-align:center;font-weight:800;font-size:16px;padding-top:10px;">${total}</td>
+      </tr></tfoot>
+    </table>
+    <div class="verdict">
+      <h2>${L.printResult}: ${v.label}</h2>
+      <p>${v.subtitle}</p>
+      <p>${v.routing}</p>
+    </div>
+    <div class="footer">Vanier College &nbsp;·&nbsp; Finance &amp; Procurement Services</div>
+  </body></html>`);
+  win.document.close();
+  win.focus();
+  win.print();
+}
+
+ccRender();
 </script>
 </body>
 </html>
